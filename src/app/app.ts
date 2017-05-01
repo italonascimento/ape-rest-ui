@@ -1,29 +1,20 @@
-import {DOMSource, VNode, p, div} from '@cycle/dom'
+import {VNode, p, div} from '@cycle/dom'
 import {StateSource} from 'cycle-onionify'
 import xs from 'xstream'
 import {Stream, MemoryStream} from 'xstream'
-import {HistoryInput, GenericInput} from '@cycle/history'
 import {routes, Route} from './router'
 import * as _ from 'lodash'
+import {Sources, Sinks, Component} from './types'
+import {GenericInput} from '@cycle/history'
 
 export interface State {
 
 }
 
-export interface Sources {
-  DOM: DOMSource
-  onion: StateSource<State>
-  history: Stream<GenericInput>
-}
-
-export interface Sinks {
-  DOM: Stream<VNode>
-}
-
 export function App(sources: Sources): Partial<Sinks> {
 
   const history$ = sources.history
-  const vdom$ = view(history$)
+  const vdom$ = view(history$, sources)
 
   const sinks: Partial<Sinks> = {
     DOM: vdom$,
@@ -32,15 +23,18 @@ export function App(sources: Sources): Partial<Sinks> {
   return sinks
 }
 
-function view(history: Stream<GenericInput>): Stream<VNode> {
-  return history.map(history =>
-    div('.main-content', [
-      currentPage(history)
-    ])
-  )
+function view(history: Stream<GenericInput>, sources: Partial<Sources>): Stream<VNode> {
+  return history
+    .map(currentPage)
+    .map(page => page ? page(sources).DOM : null)
+    .map(pageDOM =>
+      div('.main-content', [
+        pageDOM
+      ])
+    )
 }
 
-function currentPage(history: GenericInput): VNode {
+function currentPage(history: GenericInput): Component {
   const node = _.find(routes, (route: Route) => route.path === history.pathname)
-  return node ? node.view : null
+  return node ? node.component : null
 }
