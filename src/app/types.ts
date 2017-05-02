@@ -6,7 +6,7 @@ import {GenericInput} from '@cycle/history'
 export interface Sources {
   DOM: DOMSource
   onion: StateSource<any>
-  history: Stream<GenericInput | string>
+  history: Stream<GenericInput>
 }
 
 export interface Sinks {
