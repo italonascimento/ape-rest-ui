@@ -47,7 +47,7 @@ module.exports = {
   },
 
   plugins: [new HtmlWebpackPlugin({
-    title: 'Ape REST',
+    title: 'balaclava',
     hash: true,
     template: './src/index.ejs'
   })]

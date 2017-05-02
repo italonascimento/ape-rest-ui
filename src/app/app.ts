@@ -21,9 +21,7 @@ export interface Sinks {
 }
 
 export function App(sources: Sources): Partial<Sinks> {
-
-  const history$ = sources.history
-  const vdom$ = view(history$)
+  const vdom$ = view(sources)
 
   const sinks: Partial<Sinks> = {
     DOM: vdom$,
@@ -32,15 +30,20 @@ export function App(sources: Sources): Partial<Sinks> {
   return sinks
 }
 
-function view(history: Stream<GenericInput>): Stream<VNode> {
-  return history.map(history =>
-    div('.main-content', [
-      currentPage(history)
-    ])
+function view(sources: Partial<Sources>): Stream<VNode> {
+  return sources.history
+    .map(currentPage)
+    .map(page => page(sources).DOM)
+    .flatten()
+    .map((pageDOM: Stream<VNode>) =>
+      div('.main-content', [
+        pageDOM
+      ]
+    )
   )
 }
 
-function currentPage(history: GenericInput): VNode {
+function currentPage(history: GenericInput): any {
   const node = _.find(routes, (route: Route) => route.path === history.pathname)
   return node ? node.view : null
 }
