@@ -9,7 +9,11 @@
         "preserveConstEnums": true,
         "sourceMap": true,
         "allowJs": true,
-        "lib": ["es6", "dom"]
+        "lib": ["es6", "dom"],
+        "baseUrl": "./src",
+        "paths" : {
+          "": ["./src/*"]
+        }
     },
     "include": [
       "src/**/**/*"

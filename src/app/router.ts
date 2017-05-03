@@ -1,15 +1,16 @@
-import {Component} from './types'
-import {TypesPage} from './pages/types'
+import {VNode, p} from '@cycle/dom'
 import isolate from '@cycle/isolate'
+import {TypesPage} from 'app/pages/types.page'
+import {ViewComponent} from 'app/types'
 
 export interface Route {
   path: string,
-  component: Component,
+  view: ViewComponent,
 }
 
 export const routes: Route[] = [
   {
     path: '/',
-    component: isolate(TypesPage, 'typesPage')
+    view: isolate(TypesPage, 'typesPage')
   }
 ]
