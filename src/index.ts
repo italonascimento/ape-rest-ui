@@ -11,7 +11,7 @@ const wrappedMain = onionify(App)
 const drivers: Drivers<Partial<Sources>, Partial<Partial<Sinks>>> = {
   DOM: makeDOMDriver('#app'),
   history: captureClicks(makeHistoryDriver()),
-  HTTP: makeHTTPDriver
+  HTTP: makeHTTPDriver()
 }
 
 run(wrappedMain, drivers)
