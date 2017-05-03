@@ -1,10 +1,11 @@
 import {VNode, p} from '@cycle/dom'
 import isolate from '@cycle/isolate'
-import {TypesPage} from './pages/types.page'
+import {TypesPage} from 'app/pages/types.page'
+import {ViewComponent} from 'app/types'
 
 export interface Route {
   path: string,
-  view: any,
+  view: ViewComponent,
 }
 
 export const routes: Route[] = [

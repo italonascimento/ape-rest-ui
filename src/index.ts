@@ -1,12 +1,9 @@
 import {run, Driver, Drivers} from '@cycle/run'
 import {makeDOMDriver, VNode} from '@cycle/dom'
 import onionify from 'cycle-onionify'
-import {App} from './app/app'
-import {
-  makeHistoryDriver,
-  captureClicks,
-} from '@cycle/history'
-import {Sources, Sinks} from './app/types'
+import {makeHistoryDriver, captureClicks} from '@cycle/history'
+import {App} from 'app/app'
+import {Sources, Sinks} from 'app/types'
 
 const wrappedMain = onionify(App)
 
