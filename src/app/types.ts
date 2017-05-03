@@ -3,6 +3,7 @@ import {StateSource} from 'cycle-onionify'
 import {GenericInput, HistoryInput, Location} from '@cycle/history'
 import {Stream} from 'xstream'
 import {State as AppState} from 'app/app'
+import {HTTPSource} from '@cycle/http'
 
 export type Reducer<T> = (prev?: T) => T | undefined;
 
@@ -10,6 +11,7 @@ export interface Sources {
   DOM: DOMSource
   onion: StateSource<AppState>
   history: Stream<string | HistoryInput | GenericInput | Location>
+  HTTP: HTTPSource
 }
 
 export interface Sinks {

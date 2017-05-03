@@ -5,8 +5,7 @@ import {Stream, MemoryStream} from 'xstream'
 import {HistoryInput, GenericInput} from '@cycle/history'
 import {routes, Route} from 'app/router'
 import * as _ from 'lodash'
-import {Sources, Sinks, Component} from './types'
-import {GenericInput} from '@cycle/history'
+import {Sources, Sinks, ViewComponent} from './types'
 
 export interface State {
 
@@ -23,7 +22,7 @@ export function App(sources: Sources): Partial<Sinks> {
 function model(sources: Partial<Sources>): Stream<VNode>{
   return sources.history
     .map(currentPage)
-    .map(page => page(sources).DOM)
+    .map(page => page ? page(sources).DOM : null)
     .flatten()
 }
 
@@ -37,7 +36,7 @@ function view(currentPageDOM: Stream<VNode>): Stream<VNode> {
   )
 }
 
-function currentPage(history: GenericInput): any {
+function currentPage(history: GenericInput): ViewComponent {
   const node = _.find(routes, (route: Route) => route.path === history.pathname)
-  return node ? node.component : null
+  return node ? node.view : null
 }
