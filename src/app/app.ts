@@ -7,6 +7,7 @@ import {routes, Route} from 'app/router'
 import * as _ from 'lodash'
 import {Sources, Sinks, ViewComponent, Reducer} from 'app/types'
 import {State as TypesPageState} from 'app/pages/types.page'
+import {RequestInput} from '@cycle/http'
 
 export interface State {
   typesPage: TypesPageState
@@ -15,6 +16,7 @@ export interface State {
 interface Model {
   DOM$: Stream<VNode>
   reducer$: Stream<Reducer<Partial<State>>>
+  request$: Stream<RequestInput>
 }
 
 export function App(sources: Sources): Partial<Sinks> {
@@ -24,22 +26,28 @@ export function App(sources: Sources): Partial<Sinks> {
 
   return {
     DOM: vdom$,
-    onion: modelData.reducer$
+    onion: modelData.reducer$,
+    HTTP: modelData.request$
   }
 }
 
 function model(sources: Partial<Sources>): Model{
   const currentPage$ = sources.history
     .map(currentPage)
+    .map(page => page(sources))
 
   return {
     DOM$: currentPage$
-      .map(page => page(sources).DOM)
+      .map(page => page.DOM)
       .flatten(),
 
     reducer$: currentPage$
-      .map(page => page(sources).onion)
-      .flatten()
+      .map(page => page.onion)
+      .flatten(),
+
+    request$: currentPage$
+      .map(page => page.HTTP)
+      .flatten(),
   }
 }
 
