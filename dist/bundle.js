@@ -21282,19 +21282,24 @@ function App(sources) {
     var vdom$ = view(modelData.DOM$);
     return {
         DOM: vdom$,
-        onion: modelData.reducer$
+        onion: modelData.reducer$,
+        HTTP: modelData.request$
     };
 }
 exports.App = App;
 function model(sources) {
     var currentPage$ = sources.history
-        .map(currentPage);
+        .map(currentPage)
+        .map(function (page) { return page(sources); });
     return {
         DOM$: currentPage$
-            .map(function (page) { return page(sources).DOM; })
+            .map(function (page) { return page.DOM; })
             .flatten(),
         reducer$: currentPage$
-            .map(function (page) { return page(sources).onion; })
+            .map(function (page) { return page.onion; })
+            .flatten(),
+        request$: currentPage$
+            .map(function (page) { return page.HTTP; })
             .flatten()
     };
 }
@@ -22731,7 +22736,7 @@ function intent(sources) {
 function model(actions) {
     var getTypesRequest$ = actions.getTypes$
         .mapTo({
-        url: 'http://localhost:3000/admin/types',
+        url: 'http://localhost:3001/admin/types',
         category: 'getTypes'
     });
     var initialReducer$ = xstream_1["default"].of(initialReducer());
