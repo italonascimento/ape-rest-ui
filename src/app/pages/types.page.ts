@@ -5,8 +5,8 @@ import xs from 'xstream'
 import * as _ from 'lodash'
 import {RequestInput} from '@cycle/http'
 
-interface State {
-
+export interface State {
+  types: any
 }
 
 interface Model {
@@ -51,19 +51,25 @@ function model(actions: any): Model {
       category: 'getTypes',
     })
 
-  const getTypesReducer$ = actions.getTypesResult$
+  const initialReducer$: Stream<Reducer<State>> = xs.of(initialReducer())
+
+  const getTypesReducer$: Stream<Reducer<State>> = actions.getTypesResult$
     .map(getTypesReducer)
 
     return {
       request$: getTypesRequest$,
-      reducer$: getTypesReducer$
+      reducer$: xs.merge(initialReducer$, getTypesReducer$)
     }
 }
 
 function view(state$: MemoryStream<State>): Stream<VNode> {
-  return xs.of(
-    div(['Types page'])
-  )
+  return state$
+    .map(state =>
+      div([
+        'Types page',
+        div([state.types])
+      ])
+    )
 }
 
 function getTypesAction(): GetTypesAction {
@@ -74,6 +80,12 @@ function getTypesAction(): GetTypesAction {
 
 function getTypesReducer(res: any): Reducer<State> {
   return (prevState) => _.assign({}, prevState, {
-    typesResult: res
+    types: res.data
   })
+}
+
+function initialReducer(): Reducer<State> {
+  return (prev) => prev ? prev : {
+    types: []
+  }
 }

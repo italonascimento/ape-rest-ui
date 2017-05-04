@@ -9,7 +9,7 @@ export type Reducer<T> = (prev?: T) => T | undefined;
 
 export interface Sources {
   DOM: DOMSource
-  onion: StateSource<AppState>
+  onion: StateSource<any>
   history: Stream<string | HistoryInput | GenericInput | Location>
   HTTP: HTTPSource
 }
