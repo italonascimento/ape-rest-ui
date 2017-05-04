@@ -47,7 +47,7 @@ function intent(sources: Partial<Sources>): any {
 function model(actions: any): Model {
   const getTypesRequest$ = actions.getTypes$
     .mapTo({
-      url: 'http://localhost:3000/types',
+      url: 'http://localhost:3000/api/types',
       category: 'getTypes',
     })
 

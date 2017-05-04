@@ -22731,7 +22731,7 @@ function intent(sources) {
 function model(actions) {
     var getTypesRequest$ = actions.getTypes$
         .mapTo({
-        url: 'http://localhost:3000/types',
+        url: 'http://localhost:3000/api/types',
         category: 'getTypes'
     });
     var initialReducer$ = xstream_1["default"].of(initialReducer());
