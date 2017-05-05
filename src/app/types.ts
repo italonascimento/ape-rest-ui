@@ -7,6 +7,12 @@ import {HTTPSource, RequestInput} from '@cycle/http'
 
 export type Reducer<T> = (prev?: T) => T | undefined;
 
+export enum Triphasic {
+  Initial,
+  Pending,
+  Done
+}
+
 export interface Sources {
   DOM: DOMSource
   onion: StateSource<any>
