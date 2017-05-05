@@ -5,14 +5,20 @@ import xs from 'xstream'
 import * as _ from 'lodash'
 import {RequestInput} from '@cycle/http'
 import {Type, ApiResponse} from 'app/service/models'
-import {typesReducer} from './types.reducer'
+import {TypesReducer} from './types.reducer'
 import {apiService} from 'app/service/api-service'
 import {State} from './types.state'
 import {bodyParser} from 'app/service/utils/body-parser'
+import {ActionCreator, GetTypesAction, GetTypesResponseAction} from './types.actions'
 
 interface Model {
   request$: Stream<RequestInput>
   reducer$: Stream<Reducer<State>>
+}
+
+interface Actions {
+  getTypes: Stream<GetTypesAction>
+  getTypesResponse: MemoryStream<GetTypesResponseAction>
 }
 
 export function TypesPage(sources: Partial<Sources>) {
@@ -30,32 +36,33 @@ export function TypesPage(sources: Partial<Sources>) {
   }
 }
 
-function intent(sources: Partial<Sources>): any {
+function intent(sources: Partial<Sources>): Actions {
   return {
-    getTypes$: xs.of(true),
+    getTypes: xs.of(ActionCreator.getTypes()),
 
-    getTypesResult$: sources.HTTP
+    getTypesResponse: sources.HTTP
       .select('getTypes')
       .flatten()
       .map(bodyParser)
+      .map(ActionCreator.getTypesResponse)
   }
 }
 
-function model(actions: any): Model {
-  const getTypesRequest$ = actions.getTypes$
+function model(actions: Actions): Model {
+  const getTypesRequest$ = actions.getTypes
     .mapTo(apiService.getTypes)
 
-  const initialReducer$: Stream<Reducer<State>> = xs.of(typesReducer.init())
+  const initialReducer$: Stream<Reducer<State>> = xs.of(TypesReducer.init())
 
-  const getTypesReducer$: Stream<Reducer<State>> = actions.getTypes$
-    .map(typesReducer.getTypes)
+  const getTypesReducer$: Stream<Reducer<State>> = actions.getTypes
+    .map(TypesReducer.getTypes)
 
-  const getTypesResultReducer$: Stream<Reducer<State>> = actions.getTypesResult$
-    .map(typesReducer.getTypesResult)
+  const getTypesResponseReducer$: Stream<Reducer<State>> = actions.getTypesResponse
+    .map(TypesReducer.getTypesResponse)
 
     return {
       request$: getTypesRequest$,
-      reducer$: xs.merge(initialReducer$, getTypesReducer$, getTypesResultReducer$)
+      reducer$: xs.merge(initialReducer$, getTypesReducer$, getTypesResponseReducer$)
     }
 }
 
