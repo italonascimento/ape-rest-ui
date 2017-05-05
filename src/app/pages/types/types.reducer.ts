@@ -6,16 +6,28 @@ import * as _ from 'lodash'
 export const typesReducer = {
   init(): Reducer<State> {
     return (prevState) => ({
-      types: []
+      types: {
+        pending: false,
+        data: [{name: 'test', slug: 'test'}]
+      }
     })
   },
 
-  getTypes(res: any): Reducer<State> {
-    const body: ApiResponse<Type> = res.body
-    console.log(body)
-    
+  getTypes(): Reducer<State> {
     return (prevState) => _.assign({}, prevState, {
-      types: body.data
+      types: {
+        pending: true,
+        data: prevState.types.data
+      }
+    })
+  },
+
+  getTypesResult(types: Type[]): Reducer<State> {
+    return (prevState) => _.assign({}, prevState, {
+      types: {
+        pending: false,
+        data: types
+      }
     })
   }
 }
