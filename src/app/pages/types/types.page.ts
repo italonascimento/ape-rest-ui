@@ -1,4 +1,4 @@
-import {Sources, Sinks, Reducer} from 'app/types'
+import {Sources, Sinks, Reducer, Triphasic} from 'app/types'
 import {MemoryStream, Stream} from 'xstream'
 import {VNode, div, h1, h3, ul, li, p} from '@cycle/dom'
 import xs from 'xstream'
@@ -19,12 +19,7 @@ export function TypesPage(sources: Partial<Sources>) {
   const state$ = sources.onion.state$
   const vdom$ = view(state$)
 
-  state$.addListener({
-    next: i => console.log(i)
-  })
-
   const modelData: Model = model(intent(sources))
-
   const request$ = modelData.request$
   const reducer$ = modelData.reducer$
 
@@ -38,6 +33,7 @@ export function TypesPage(sources: Partial<Sources>) {
 function intent(sources: Partial<Sources>): any {
   return {
     getTypes$: xs.of(true),
+
     getTypesResult$: sources.HTTP
       .select('getTypes')
       .flatten()
@@ -65,20 +61,27 @@ function model(actions: any): Model {
 
 function view(state$: MemoryStream<State>): Stream<VNode> {
   return state$
-    .map(state => state.types.data)
+    .map(state => state.types)
     .filter(Boolean)
     .map(types =>
-      div('.types-page', [
-        h1('.types-page_title', 'Types page'),
+      div('.types-page',
+      [
+        h1('.types-page_title', 'Types'),
 
-        types.length ?
-        ul('.types-list',
-          _.map(types, type =>
-            li('test')
-          )
-        ) :
-        div('.types-list.types-list--empty', [
-          p('No types to show')
+        div('.types',
+        {
+          class: {'types--loading': types.pending === Triphasic.Pending},
+        },
+        [
+          types.data.length ?
+          ul('.types_list',
+            _.map(types.data, type =>
+              li('test')
+            )
+          ) :
+          div('.types_empty-list', [
+            p('No types to show')
+          ])
         ])
       ])
     )

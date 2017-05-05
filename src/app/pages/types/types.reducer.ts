@@ -9,7 +9,7 @@ export const typesReducer = {
     return (prevState) => ({
       types: {
         pending: Triphasic.Initial,
-        data: [{name: 'test', slug: 'test'}]
+        data: []
       }
     })
   },
