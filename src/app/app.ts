@@ -6,7 +6,7 @@ import {HistoryInput, GenericInput} from '@cycle/history'
 import {routes, Route} from 'app/router'
 import * as _ from 'lodash'
 import {Sources, Sinks, ViewComponent, Reducer} from 'app/types'
-import {State as TypesPageState} from 'app/pages/types.page'
+import {State as TypesPageState} from 'app/pages/types/types.state'
 import {RequestInput} from '@cycle/http'
 
 export interface State {

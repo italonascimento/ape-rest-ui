@@ -1,22 +1,16 @@
 import {Sources, Sinks, Reducer} from 'app/types'
 import {MemoryStream, Stream} from 'xstream'
-import {VNode, div} from '@cycle/dom'
+import {VNode, div, h1, h3, ul, li, p} from '@cycle/dom'
 import xs from 'xstream'
 import * as _ from 'lodash'
 import {RequestInput} from '@cycle/http'
-
-export interface State {
-  types: any
-}
+import {Type, ApiResponse} from 'app/service/models'
+import {typesReducer} from './types.reducer'
+import {State} from './types.state'
 
 interface Model {
   request$: Stream<RequestInput>
   reducer$: Stream<Reducer<State>>
-}
-
-interface GetTypesAction {
-  type: 'GET_TYPES',
-  payload?: any
 }
 
 export function TypesPage(sources: Partial<Sources>) {
@@ -37,7 +31,7 @@ export function TypesPage(sources: Partial<Sources>) {
 
 function intent(sources: Partial<Sources>): any {
   return {
-    getTypes$: xs.of(getTypesAction()),
+    getTypes$: xs.of(true),
     getTypesResult$: sources.HTTP
       .select('getTypes')
       .flatten()
@@ -51,10 +45,10 @@ function model(actions: any): Model {
       category: 'getTypes',
     })
 
-  const initialReducer$: Stream<Reducer<State>> = xs.of(initialReducer())
+  const initialReducer$: Stream<Reducer<State>> = xs.of(typesReducer.init())
 
   const getTypesReducer$: Stream<Reducer<State>> = actions.getTypesResult$
-    .map(getTypesReducer)
+    .map(typesReducer.getTypes)
 
     return {
       request$: getTypesRequest$,
@@ -64,28 +58,21 @@ function model(actions: any): Model {
 
 function view(state$: MemoryStream<State>): Stream<VNode> {
   return state$
-    .map(state =>
-      div([
-        'Types page',
-        div([state.types])
+    .map(state => state.types)
+    .filter(Boolean)
+    .map(types =>
+      div('.types-page', [
+        h1('.types-page_title', 'Types page'),
+
+        types.length ?
+        ul('.types-list',
+          _.map(types, type =>
+            li('test')
+          )
+        ) :
+        div('.types-list.types-list--empty', [
+          p('No types to show')
+        ])
       ])
     )
-}
-
-function getTypesAction(): GetTypesAction {
-  return {
-    type: 'GET_TYPES'
-  }
-}
-
-function getTypesReducer(res: any): Reducer<State> {
-  return (prevState) => _.assign({}, prevState, {
-    types: res.data
-  })
-}
-
-function initialReducer(): Reducer<State> {
-  return (prev) => prev ? prev : {
-    types: []
-  }
 }
