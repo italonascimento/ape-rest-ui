@@ -3,7 +3,6 @@ import {State} from './types.state'
 import {Type, ApiResponse} from 'app/service/models'
 import * as _ from 'lodash'
 import {Triphasic} from 'app/types'
-import {GetTypesResponseAction} from './types.actions'
 
 export const TypesReducer = {
   init(): Reducer<State> {
@@ -24,11 +23,11 @@ export const TypesReducer = {
     })
   },
 
-  getTypesResponse(action: GetTypesResponseAction): Reducer<State> {
+  getTypesResponse(types: Type[]): Reducer<State> {
     return (prevState) => _.assign({}, prevState, {
       types: {
         pending: Triphasic.Done,
-        data: action.payload
+        data: types
       }
     })
   }

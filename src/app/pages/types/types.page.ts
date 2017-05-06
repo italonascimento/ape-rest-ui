@@ -9,7 +9,6 @@ import {TypesReducer} from './types.reducer'
 import {apiService} from 'app/service/api-service'
 import {State} from './types.state'
 import {bodyParser} from 'app/service/utils/body-parser'
-import {ActionCreator, GetTypesAction, GetTypesResponseAction} from './types.actions'
 
 interface Model {
   request$: Stream<RequestInput>
@@ -17,8 +16,8 @@ interface Model {
 }
 
 interface Actions {
-  getTypes: Stream<GetTypesAction>
-  getTypesResponse: MemoryStream<GetTypesResponseAction>
+  getTypes: Stream<undefined>
+  getTypesResponse: MemoryStream<Type[]>
 }
 
 export function TypesPage(sources: Partial<Sources>) {
@@ -38,13 +37,12 @@ export function TypesPage(sources: Partial<Sources>) {
 
 function intent(sources: Partial<Sources>): Actions {
   return {
-    getTypes: xs.of(ActionCreator.getTypes()),
+    getTypes: xs.of(undefined),
 
     getTypesResponse: sources.HTTP
       .select('getTypes')
       .flatten()
       .map(bodyParser)
-      .map(ActionCreator.getTypesResponse)
   }
 }
 
