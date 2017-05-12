@@ -1,23 +1,25 @@
-import {Sources, Sinks, Reducer, Triphasic} from 'app/types'
+import {Sources, Sinks, Reducer, Triphasic, ViewMode} from 'app/types'
 import {MemoryStream, Stream} from 'xstream'
-import {VNode, div, h1, h3, ul, li, p} from '@cycle/dom'
+import {VNode, div, h1, h3, ul, li, p, a, span} from '@cycle/dom'
 import xs from 'xstream'
-import * as _ from 'lodash'
 import {RequestInput} from '@cycle/http'
 import {Type, ApiResponse} from 'app/service/models'
 import {TypesReducer} from './types.reducer'
 import {apiService} from 'app/service/api-service'
 import {State} from './types.state'
 import {bodyParser} from 'app/service/utils/body-parser'
+import {TypeForm} from './components/type-form'
+import {TypesList} from './components/types-list'
 
 interface Model {
-  request$: Stream<RequestInput>
-  reducer$: Stream<Reducer<State>>
+  request: Stream<RequestInput>
+  reducer: Stream<Reducer<State>>
 }
 
 interface Actions {
   getTypes: Stream<undefined>
-  getTypesResponse: MemoryStream<Type[]>
+  getTypesResponse: Stream<Type[]>
+  newType: Stream<any>
 }
 
 export function TypesPage(sources: Partial<Sources>) {
@@ -25,8 +27,8 @@ export function TypesPage(sources: Partial<Sources>) {
   const vdom$ = view(state$)
 
   const modelData: Model = model(intent(sources))
-  const request$ = modelData.request$
-  const reducer$ = modelData.reducer$
+  const request$ = modelData.request
+  const reducer$ = modelData.reducer
 
   return {
     DOM: vdom$,
@@ -36,13 +38,19 @@ export function TypesPage(sources: Partial<Sources>) {
 }
 
 function intent(sources: Partial<Sources>): Actions {
+  const {HTTP, DOM} = sources
+
   return {
     getTypes: xs.of(undefined),
 
-    getTypesResponse: sources.HTTP
+    getTypesResponse: HTTP
       .select('getTypes')
       .flatten()
-      .map(bodyParser)
+      .map(bodyParser),
+
+    newType: DOM
+      .select('.new-type')
+      .events('click')
   }
 }
 
@@ -53,41 +61,45 @@ function model(actions: Actions): Model {
   const initialReducer$: Stream<Reducer<State>> = xs.of(TypesReducer.init())
 
   const getTypesReducer$: Stream<Reducer<State>> = actions.getTypes
-    .map(TypesReducer.getTypes)
+    .mapTo(TypesReducer.getTypes())
 
   const getTypesResponseReducer$: Stream<Reducer<State>> = actions.getTypesResponse
     .map(TypesReducer.getTypesResponse)
 
+  const newTypeReducer$: Stream<Reducer<State>> = actions.newType
+    .mapTo(TypesReducer.newType())
+
     return {
-      request$: getTypesRequest$,
-      reducer$: xs.merge(initialReducer$, getTypesReducer$, getTypesResponseReducer$)
+      request: getTypesRequest$,
+      reducer: xs.merge(initialReducer$, getTypesReducer$, getTypesResponseReducer$, newTypeReducer$)
     }
 }
 
 function view(state$: MemoryStream<State>): Stream<VNode> {
   return state$
-    .map(state => state.types)
-    .filter(Boolean)
-    .map(types =>
-      div('.types-page',
+    .map(state =>
+      div('.page.types-page',
       [
-        h1('.types-page_title', 'Types'),
+        h1('.page_title', 'Types'),
 
-        div('.types',
-        {
-          class: {'types--loading': types.pending === Triphasic.Pending},
-        },
-        [
-          types.data.length ?
-          ul('.types_list',
-            _.map(types.data, type =>
-              li('test')
-            )
-          ) :
-          div('.types_empty-list', [
-            p('No types to show')
+        ul('.toolbar', [
+          li('.toolbar_option', [
+            a('.new-type.toolbar_button', {attrs: {href: ''}}, 'New type')
           ])
-        ])
+        ]),
+
+        CurrentView(state)
       ])
     )
+}
+
+function CurrentView(state: State): VNode {
+  switch(state.viewMode){
+    case ViewMode.List:
+    const {data, pending} = state.types
+    return TypesList(data, pending)
+
+    case ViewMode.Edit:
+    return TypeForm()
+  }
 }

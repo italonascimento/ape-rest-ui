@@ -10,7 +10,7 @@ export type Reducer<T> = (prev?: T) => T | undefined;
 export enum Triphasic {
   Initial,
   Pending,
-  Done
+  Done,
 }
 
 export interface Sources {
@@ -28,3 +28,8 @@ export interface Sinks {
 }
 
 export type ViewComponent = (sources: Partial<Sources>) => Partial<Sinks>
+
+export enum ViewMode {
+  List,
+  Edit,
+}

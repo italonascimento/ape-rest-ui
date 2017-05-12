@@ -1,4 +1,4 @@
-import {Reducer} from 'app/types'
+import {Reducer, ViewMode} from 'app/types'
 import {State} from './types.state'
 import {Type, ApiResponse} from 'app/service/models'
 import * as _ from 'lodash'
@@ -6,7 +6,8 @@ import {Triphasic} from 'app/types'
 
 export const TypesReducer = {
   init(): Reducer<State> {
-    return (prevState) => ({
+    return (prevState) => prevState ? prevState : ({
+      viewMode: ViewMode.List,
       types: {
         pending: Triphasic.Initial,
         data: []
@@ -30,5 +31,11 @@ export const TypesReducer = {
         data: types
       }
     })
-  }
+  },
+
+  newType(): Reducer<State> {
+    return (prevState) => _.assign({}, prevState, {
+      viewMode: ViewMode.Edit
+    })
+  },
 }
