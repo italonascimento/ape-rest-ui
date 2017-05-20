@@ -8,74 +8,100 @@ import {RequestInput} from '@cycle/http'
 import isolate from '@cycle/isolate'
 import TypesListComponent from './components/types-list/types-list'
 import TypeFormComponent from './components/type-form/type-form'
+import {GenericInput} from '@cycle/history'
+import {routes, Route} from 'app/router'
+import * as _ from 'lodash'
 
 interface Model {
   reducer$: Stream<Reducer<State>>
 }
 
 interface Actions {
-  newType$: Stream<any>
+  changeMode$: Stream<any>
 }
 
 
 export default function (sources: Partial<Sources>) {
-  const {onion, DOM} = sources
+  const {onion, DOM, history} = sources
 
-  const {reducer$} = model(intent(DOM))
+  const {reducer$} = model(intent(sources))
 
-  const TypesList = isolate(TypesListComponent, 'typesList')(sources)
-  const TypeForm = isolate(TypeFormComponent, 'typeForm')(sources)
-
+  const CurrentMode$ = history
+    .map(currentMode)
+    .map(component => component(sources))
 
   const vdom$ = xs.combine(
     onion.state$,
-    TypesList.DOM,
-    TypeForm.DOM)
+    CurrentMode$
+      .map(m => m.DOM)
+      .flatten())
     .map(combined => view.apply(null, combined))
 
   return {
     DOM: vdom$,
-    HTTP: xs.merge(TypesList.HTTP),
-    onion: xs.merge(reducer$, TypesList.onion, TypeForm.onion)
+    HTTP: xs.merge(
+      CurrentMode$
+        .map(m => m.HTTP)
+        .flatten(),
+    ),
+    onion: xs.merge(
+      reducer$,
+      CurrentMode$
+        .map(m => m.onion)
+        .flatten(),
+    )
   }
 }
 
-function intent(DOM: DOMSource): Actions {
+function intent(sources: Partial<Sources>): Actions {
+  const {history} = sources
+
   return {
-    newType$: DOM
-      .select('.new-type')
-      .events('click')
+    changeMode$: history
+      .map((h: GenericInput) => _.split(h.pathname, '/')[2] || '')
   }
 }
 
 function model(actions: Actions): Model {
-  const newTypeReducer$: Stream<Reducer<State>> = actions.newType$
-    .mapTo(TypesReducer.newType())
+  const changeModeReducer$: Stream<Reducer<State>> = actions.changeMode$
+    .map(TypesReducer.changeMode)
 
     return {
-      reducer$: newTypeReducer$
+      reducer$: changeModeReducer$
     }
 }
 
-function view(state: State, TypesList: VNode, TypeForm: VNode): VNode {
+function view(state: State, CurrentMode: VNode): VNode {
   return (
     div('.page.types-page',
     [
       h1('.page_title', 'Types'),
 
       ul('.toolbar', [
+        state.viewMode === ViewMode.List ?
         li('.toolbar_item', [
-          a('.button.new-type', 'New type')
-        ])
+          a('.button.new-type', {props: {href: '/types/new'}}, 'New type')
+        ]) :
+        null,
+
+        state.viewMode === ViewMode.Edit ?
+        li('.toolbar_item', [
+          a('.button.cancel', {props: {href: '/types'}}, 'Cancel')
+        ]) :
+        null
       ]),
 
-      state.viewMode === ViewMode.List ?
-      TypesList :
-      null,
-
-      state.viewMode === ViewMode.Edit ?
-      TypeForm :
-      null,
+      CurrentMode,
     ])
+  )
+}
+
+function currentMode(history: GenericInput): ViewComponent {
+  const paths = _.split(history.pathname, '/')
+  const currentRoute = _.find(routes, (route: Route) => _.includes(paths, route.path))
+  const node = _.find(currentRoute.children, (route: Route) => paths[2] === route.path)
+
+  return node ? node.view : (
+    _.find(currentRoute.children, (route: Route) => route.path === "").view || null
   )
 }

@@ -1,16 +1,32 @@
 import {VNode, p} from '@cycle/dom'
 import isolate from '@cycle/isolate'
 import TypesPage from 'app/pages/types/types.page'
+import {TypesList, TypeForm} from 'app/pages/types/components'
 import {ViewComponent} from 'app/types'
 
 export interface Route {
-  path: string,
-  view: ViewComponent,
+  name: string
+  path: string
+  view: ViewComponent
+  children?: Route[]
 }
 
 export const routes: Route[] = [
   {
-    path: '/',
-    view: isolate(TypesPage, 'typesPage')
-  }
+    name: 'types-page',
+    path: 'types',
+    view: isolate(TypesPage, 'typesPage'),
+    children: [
+      {
+        name: 'list-mode',
+        path: '',
+        view: isolate(TypesList, 'typesList')
+      },
+      {
+        name: 'edit-mode',
+        path: 'new',
+        view: isolate(TypeForm, 'typeForm')
+      },
+    ],
+  },
 ]

@@ -10,9 +10,18 @@ export default {
     })
   },
 
-  newType(): Reducer<State> {
+  changeMode(path: string): Reducer<State> {
+    const getMode = (path: string) => {
+      switch(path) {
+        case 'new' || 'edit':
+        return ViewMode.Edit
+
+        default:
+        return ViewMode.List
+      }
+    }
     return (prevState) => _.assign({}, prevState, {
-      viewMode: ViewMode.Edit
+      viewMode: getMode(path)
     })
   },
 }

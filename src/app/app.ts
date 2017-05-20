@@ -62,6 +62,10 @@ function view(currentPageDOM: Stream<VNode>): Stream<VNode> {
 }
 
 function currentPage(history: GenericInput): ViewComponent {
-  const node = _.find(routes, (route: Route) => route.path === history.pathname)
-  return node.view
+  const paths = _.split(history.pathname, '/')
+  const node = _.find(routes, (route: Route) => _.includes(paths, route.path))
+
+  return node ? node.view : (
+    _.find(routes, (route: Route) => route.path === "").view || null
+  )
 }

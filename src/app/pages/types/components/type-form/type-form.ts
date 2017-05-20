@@ -22,7 +22,8 @@ export default function(sources: Partial<Sources>) {
 
   return {
     DOM: vdom$,
-    onion: reducer$
+    onion: reducer$,
+    HTTP: xs.never(),
   }
 }
 
