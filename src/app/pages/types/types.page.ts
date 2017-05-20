@@ -1,4 +1,4 @@
-import {Sources, Reducer, ViewMode} from 'app/types'
+import {Sources, Sinks, Reducer, ViewMode, ViewComponent} from 'app/types'
 import {MemoryStream, Stream} from 'xstream'
 import {DOMSource, VNode, div, h1, h3, ul, li, p, a, span} from '@cycle/dom'
 import xs from 'xstream'
@@ -6,7 +6,8 @@ import TypesReducer from './types.reducer'
 import {State} from './types.state'
 import {RequestInput} from '@cycle/http'
 import isolate from '@cycle/isolate'
-import TypesList from './components/types-list/types-list'
+import TypesListComponent from './components/types-list/types-list'
+import TypeFormComponent from './components/type-form/type-form'
 
 interface Model {
   reducer$: Stream<Reducer<State>>
@@ -20,19 +21,22 @@ interface Actions {
 export default function (sources: Partial<Sources>) {
   const {onion, DOM} = sources
 
-  const typesList = isolate(TypesList, 'typesList')(sources)
-
-  const currentComponent = typesList.DOM
-
-  const vdom$ = currentComponent
-    .map(view)
-
   const {reducer$} = model(intent(DOM))
+
+  const TypesList = isolate(TypesListComponent, 'typesList')(sources)
+  const TypeForm = isolate(TypeFormComponent, 'typeForm')(sources)
+
+
+  const vdom$ = xs.combine(
+    onion.state$,
+    TypesList.DOM,
+    TypeForm.DOM)
+    .map(combined => view.apply(null, combined))
 
   return {
     DOM: vdom$,
-    HTTP: typesList.HTTP,
-    onion: xs.merge(reducer$, typesList.onion)
+    HTTP: xs.merge(TypesList.HTTP),
+    onion: xs.merge(reducer$, TypesList.onion, TypeForm.onion)
   }
 }
 
@@ -53,13 +57,25 @@ function model(actions: Actions): Model {
     }
 }
 
-function view(currentComponent: VNode): VNode {
+function view(state: State, TypesList: VNode, TypeForm: VNode): VNode {
   return (
     div('.page.types-page',
     [
       h1('.page_title', 'Types'),
 
-      currentComponent
+      ul('.toolbar', [
+        li('.toolbar_item', [
+          a('.button.new-type', 'New type')
+        ])
+      ]),
+
+      state.viewMode === ViewMode.List ?
+      TypesList :
+      null,
+
+      state.viewMode === ViewMode.Edit ?
+      TypeForm :
+      null,
     ])
   )
 }
