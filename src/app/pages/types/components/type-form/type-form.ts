@@ -6,6 +6,7 @@ import TypeFormReducer from './type-form.reducer'
 import Singleline from 'app/components/inputs/singleline'
 import isolate from '@cycle/isolate'
 import {apply} from 'app/utils'
+import formStyle from 'app/style/form'
 
 interface Actions {
 
@@ -21,10 +22,12 @@ export default function(sources: Partial<Sources>) {
   const {reducer$} = model(intent())
 
   const NameField = isolate(Singleline, 'typeName')(sources)
+  const SlugField = isolate(Singleline, 'typeSlug')(sources)
 
   const vdom$ = xs.combine(
     onion.state$,
-    NameField.DOM)
+    NameField.DOM,
+    SlugField.DOM)
     .map(apply(view))
 
   return {
@@ -32,6 +35,7 @@ export default function(sources: Partial<Sources>) {
     onion: xs.merge(
       reducer$,
       NameField.onion,
+      SlugField.onion,
     ),
     HTTP: xs.never(),
   }
@@ -61,11 +65,33 @@ function view(
   return (
     div('.new-type', [
       form('.form', [
-        div('.form_row', [
-          label('.form_field', [
+        div({
+          attrs: {
+            class: formStyle.row
+          }
+        }, [
+          label({
+            attrs: {
+              class: formStyle.field
+            }
+          }, [
             NameField,
+          ]),
+        ]),
+
+        div({
+          attrs: {
+            class: formStyle.row
+          }
+        }, [
+          label({
+            attrs: {
+              class: formStyle.field
+            }
+          }, [
+            SlugField,
           ])
-        ])
+        ]),
       ])
     ])
   )

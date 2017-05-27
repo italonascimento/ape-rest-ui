@@ -19,6 +19,7 @@ interface Model {
 
 interface Actions {
   changeMode$: Stream<any>
+  newType$: Stream<any>
 }
 
 
@@ -55,11 +56,15 @@ export default function (sources: Partial<Sources>) {
 }
 
 function intent(sources: Partial<Sources>): Actions {
-  const {history} = sources
+  const {DOM, history} = sources
 
   return {
     changeMode$: history
-      .map((h: GenericInput) => _.split(h.pathname, '/')[2] || '')
+      .map((h: GenericInput) => _.split(h.pathname, '/')[2] || ''),
+
+    newType$: DOM
+      .select('.new-type')
+      .events('click')
   }
 }
 
@@ -67,9 +72,15 @@ function model(actions: Actions): Model {
   const changeModeReducer$: Stream<Reducer<State>> = actions.changeMode$
     .map(TypesReducer.changeMode)
 
-    return {
-      reducer$: changeModeReducer$
-    }
+  const resetNewTypeReducer$: Stream<Reducer<State>> = actions.newType$
+    .mapTo(TypesReducer.resetNewType())
+
+  return {
+    reducer$: xs.merge(
+      changeModeReducer$,
+      resetNewTypeReducer$,
+    )
+  }
 }
 
 function view(state: State, CurrentMode: VNode): VNode {

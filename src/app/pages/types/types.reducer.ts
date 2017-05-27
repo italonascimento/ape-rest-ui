@@ -2,12 +2,13 @@ import {Reducer, ViewMode} from 'app/types'
 import {State} from './types.state'
 import * as _ from 'lodash'
 import {Triphasic} from 'app/types'
+import {State as TypeFormState} from './components/type-form/type-form.state'
 
 export default {
   init(): Reducer<State> {
-    return (prevState) => prevState ? prevState : _.assign({}, prevState, {
+    return (prevState) => prevState ? prevState : <State>{
       viewMode: ViewMode.List
-    })
+    }
   },
 
   changeMode(path: string): Reducer<State> {
@@ -24,4 +25,10 @@ export default {
       viewMode: getMode(path)
     })
   },
+
+  resetNewType(): Reducer<State> {
+    return (prevState) => _.assign({}, prevState, {
+      typeForm: <TypeFormState>{}
+    })
+  }
 }

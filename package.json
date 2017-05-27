@@ -19,6 +19,7 @@
     "@types/lodash": "^4.14.63",
     "awesome-typescript-loader": "^3.1.2",
     "cycle-onionify": "^3.2.0",
+    "glamor": "^2.20.25",
     "html-webpack-plugin": "^2.28.0",
     "lodash": "^4.17.4",
     "typescript": "^2.2.2",

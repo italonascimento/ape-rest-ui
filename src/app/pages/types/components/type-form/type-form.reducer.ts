@@ -6,8 +6,8 @@ import {Reducer} from 'app/types'
 
 export default {
   init(): Reducer<State> {
-    return (prevState) => prevState ? prevState : _.assign({}, prevState, {
-      newType: null
-    })
+    return (prevState) => prevState ? prevState : {
+      typeName: ''
+    }
   },
 }
