@@ -20,14 +20,14 @@ interface Model {
 }
 
 export function App(sources: Sources): Partial<Sinks> {
-  const modelData = model(sources)
+  const {DOM$, reducer$, request$} = model(sources)
 
-  const vdom$ = view(modelData.DOM$)
+  const vdom$ = view(DOM$)
 
   return {
     DOM: vdom$,
-    onion: modelData.reducer$,
-    HTTP: modelData.request$
+    onion: reducer$,
+    HTTP: request$
   }
 }
 

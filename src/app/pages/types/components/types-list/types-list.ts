@@ -5,9 +5,10 @@ import xs, {Stream} from 'xstream'
 import {Type} from 'app/service/models'
 import {State} from './types-list.state'
 import TypesListReducer from './types-list.reducer'
-import {bodyParser} from 'app/service/utils/body-parser'
+import responseHandler from 'app/service/utils/response-handler'
 import {apiService} from 'app/service/api-service'
 import * as _ from 'lodash'
+import {Functions as F} from 'app/utils'
 
 interface Model {
   request$: Stream<RequestInput>
@@ -39,8 +40,10 @@ function intent(DOM: DOMSource, HTTP: HTTPSource): Actions {
 
     getTypesResponse$: HTTP
       .select('getTypes')
+      .map(responseHandler)
       .flatten()
-      .map(bodyParser),
+      .filter(F.hasPath('data'))
+      .map(res => res.data),
   }
 }
 
