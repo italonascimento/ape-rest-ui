@@ -7,6 +7,7 @@ import Singleline from 'app/components/inputs/singleline'
 import isolate from '@cycle/isolate'
 import {apply} from 'app/utils'
 import formStyle from 'app/style/form'
+import style from './type-form.style'
 
 interface Actions {
 
@@ -63,32 +64,16 @@ function view(
   SlugField: VNode,
 ): VNode {
   return (
-    div('.new-type', [
-      form('.form', [
-        div({
-          attrs: {
-            class: formStyle.row
-          }
-        }, [
-          label({
-            attrs: {
-              class: formStyle.field
-            }
-          }, [
+    div([
+      form({ attrs: { class: style.form }}, [
+        div({ attrs: { class: formStyle.row }}, [
+          label({ attrs: { class: formStyle.field }}, [
             NameField,
           ]),
         ]),
 
-        div({
-          attrs: {
-            class: formStyle.row
-          }
-        }, [
-          label({
-            attrs: {
-              class: formStyle.field
-            }
-          }, [
+        div({ attrs: { class: formStyle.row }}, [
+          label({ attrs: { class: formStyle.field }}, [
             SlugField,
           ])
         ]),
