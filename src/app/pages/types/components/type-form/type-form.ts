@@ -1,8 +1,11 @@
 import {Sources, Reducer} from 'app/types'
-import {VNode, div, form, label} from '@cycle/dom'
+import {VNode, div, form, label, p} from '@cycle/dom'
 import {State} from './type-form.state'
 import xs, {Stream} from 'xstream'
 import TypeFormReducer from './type-form.reducer'
+import Singleline from 'app/components/inputs/singleline'
+import isolate from '@cycle/isolate'
+import {apply} from 'app/utils'
 
 interface Actions {
 
@@ -17,12 +20,19 @@ export default function(sources: Partial<Sources>) {
 
   const {reducer$} = model(intent())
 
-  const vdom$ = onion.state$
-    .map(view)
+  const NameField = isolate(Singleline, 'typeName')(sources)
+
+  const vdom$ = xs.combine(
+    onion.state$,
+    NameField.DOM)
+    .map(apply(view))
 
   return {
     DOM: vdom$,
-    onion: reducer$,
+    onion: xs.merge(
+      reducer$,
+      NameField.onion,
+    ),
     HTTP: xs.never(),
   }
 }
@@ -43,8 +53,20 @@ function model(actions: Actions): Model {
   }
 }
 
-function view(state: State): VNode {
+function view(
+  state: State,
+  NameField: VNode,
+  SlugField: VNode,
+): VNode {
   return (
-    div('.new-type', 'New type')
+    div('.new-type', [
+      form('.form', [
+        div('.form_row', [
+          label('.form_field', [
+            NameField,
+          ])
+        ])
+      ])
+    ])
   )
 }

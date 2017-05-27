@@ -11,6 +11,7 @@ import TypeFormComponent from './components/type-form/type-form'
 import {GenericInput} from '@cycle/history'
 import {routes, Route} from 'app/router'
 import * as _ from 'lodash'
+import {apply} from 'app/utils'
 
 interface Model {
   reducer$: Stream<Reducer<State>>
@@ -35,7 +36,7 @@ export default function (sources: Partial<Sources>) {
     CurrentMode$
       .map(m => m.DOM)
       .flatten())
-    .map(combined => view.apply(null, combined))
+    .map(apply(view))
 
   return {
     DOM: vdom$,
