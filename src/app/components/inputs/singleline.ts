@@ -1,6 +1,7 @@
-import {Sources, Sinks, Reducer} from 'app/types'
+import {Sources as ParentSources, Sinks, Reducer} from 'app/types'
 import {VNode, input, DOMSource} from '@cycle/dom'
 import xs, {Stream} from 'xstream'
+import {apply} from 'app/utils'
 
 export type State = string
 
@@ -12,11 +13,21 @@ interface Model {
   reducer$: Stream<Reducer<State>>
 }
 
-export default function(sources: Partial<Sources>): Partial<Sinks> {
-  const {onion, DOM} = sources
+export interface Props {
+  placeholder: string
+}
 
-  const vdom$ = onion.state$
-    .map(view)
+interface Sources extends ParentSources {
+  props: Stream<Props>
+}
+
+export default function(sources: Partial<Sources>): Partial<Sinks> {
+  const {onion, DOM, props} = sources
+
+  const vdom$ = xs.combine(
+    onion.state$,
+    props)
+    .map(apply(view))
 
   const {reducer$} = model(intent(DOM))
 
@@ -49,11 +60,12 @@ function model(actions: Actions): Model {
   }
 }
 
-function view(state: State): VNode {
+function view(state: State, props: Props): VNode {
   return (
     input({
-      props: {
-        value: state
+      attrs: {
+        value: state,
+        placeholder: props.placeholder,
       }
     })
   )
