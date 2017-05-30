@@ -2,22 +2,22 @@ import {Sources, Reducer, Triphasic} from 'app/types'
 import {DOMSource, VNode, div, ul, li, p} from '@cycle/dom'
 import {HTTPSource, RequestInput} from '@cycle/http'
 import xs, {Stream} from 'xstream'
-import {Type} from 'app/service/models'
+import {Type} from 'app/api/models'
 import {State} from './types-list.state'
 import TypesListReducer from './types-list.reducer'
-import responseHandler from 'app/service/utils/response-handler'
-import {apiService} from 'app/service/api-service'
+import responseHandler from 'app/api/utils/response-handler'
 import * as _ from 'lodash'
 import {Functions as F} from 'app/utils'
+import {TypesService} from 'app/api/service'
 
 interface Model {
-  request$: Stream<RequestInput>
-  reducer$: Stream<Reducer<State>>
+  request: Stream<RequestInput>
+  reducer: Stream<Reducer<State>>
 }
 
 interface Actions {
-  getTypes$: Stream<undefined>
-  getTypesResponse$: Stream<Type[]>
+  getTypes: Stream<undefined>
+  getTypesResponse: Stream<Type[]>
 }
 
 export default function(sources: Partial<Sources>){
@@ -25,20 +25,21 @@ export default function(sources: Partial<Sources>){
   const vdom$ = onion.state$
     .map(view)
 
-  const {request$, reducer$} = model(intent(DOM, HTTP))
+  const {request, reducer} = model(intent(DOM, HTTP))
 
   return {
     DOM: vdom$,
-    HTTP: request$,
-    onion: reducer$
+    HTTP: request,
+    onion: reducer,
+    history: xs.never()
   }
 }
 
 function intent(DOM: DOMSource, HTTP: HTTPSource): Actions {
   return {
-    getTypes$: xs.of(undefined),
+    getTypes: xs.of(undefined),
 
-    getTypesResponse$: HTTP
+    getTypesResponse: HTTP
       .select('getTypes')
       .map(responseHandler)
       .flatten()
@@ -48,20 +49,20 @@ function intent(DOM: DOMSource, HTTP: HTTPSource): Actions {
 }
 
 function model(actions: Actions): Model {
-  const getTypesRequest$ = actions.getTypes$
-  .mapTo(apiService.getTypes)
+  const getTypesRequest$ = actions.getTypes
+  .mapTo(TypesService.get())
 
   const initialReducer$: Stream<Reducer<State>> = xs.of(TypesListReducer.init())
 
-  const getTypesReducer$: Stream<Reducer<State>> = actions.getTypes$
+  const getTypesReducer$: Stream<Reducer<State>> = actions.getTypes
     .mapTo(TypesListReducer.getTypes())
 
-  const getTypesResponseReducer$: Stream<Reducer<State>> = actions.getTypesResponse$
+  const getTypesResponseReducer$: Stream<Reducer<State>> = actions.getTypesResponse
     .map(TypesListReducer.getTypesResponse)
 
   return {
-    request$: getTypesRequest$,
-    reducer$: xs.merge(initialReducer$, getTypesReducer$, getTypesResponseReducer$)
+    request: getTypesRequest$,
+    reducer: xs.merge(initialReducer$, getTypesReducer$, getTypesResponseReducer$)
   }
 }
 

@@ -41,17 +41,23 @@ export default function (sources: Partial<Sources>) {
 
   return {
     DOM: vdom$,
+
     HTTP: xs.merge(
       CurrentMode$
         .map(m => m.HTTP)
         .flatten(),
     ),
+
     onion: xs.merge(
       reducer$,
       CurrentMode$
         .map(m => m.onion)
         .flatten(),
-    )
+    ),
+
+    history: CurrentMode$
+      .map(m => m.history)
+      .flatten()
   }
 }
 

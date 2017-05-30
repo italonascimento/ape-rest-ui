@@ -14,20 +14,22 @@ export interface State {
 }
 
 interface Model {
-  DOM$: Stream<VNode>
-  reducer$: Stream<Reducer<Partial<State>>>
-  request$: Stream<RequestInput>
+  DOM: Stream<VNode>
+  reducer: Stream<Reducer<Partial<State>>>
+  request: Stream<RequestInput>
+  history: Stream<any>
 }
 
 export function App(sources: Sources): Partial<Sinks> {
-  const {DOM$, reducer$, request$} = model(sources)
+  const {DOM, reducer, request, history} = model(sources)
 
-  const vdom$ = view(DOM$)
+  const vdom$ = view(DOM)
 
   return {
     DOM: vdom$,
-    onion: reducer$,
-    HTTP: request$
+    onion: reducer,
+    HTTP: request,
+    history: history,
   }
 }
 
@@ -37,16 +39,20 @@ function model(sources: Partial<Sources>): Model{
     .map(page => page(sources))
 
   return {
-    DOM$: currentPage$
+    DOM: currentPage$
       .map(page => page.DOM)
       .flatten(),
 
-    reducer$: currentPage$
+    reducer: currentPage$
       .map(page => page.onion)
       .flatten(),
 
-    request$: currentPage$
+    request: currentPage$
       .map(page => page.HTTP)
+      .flatten(),
+
+    history: currentPage$
+      .map(page => page.history)
       .flatten(),
   }
 }

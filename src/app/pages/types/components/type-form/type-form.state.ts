@@ -1,4 +1,4 @@
-import {Type} from 'app/service/models'
+import {Type} from 'app/api/models'
 
 export interface State {
   typeName: string

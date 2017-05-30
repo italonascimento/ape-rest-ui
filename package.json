@@ -8,7 +8,7 @@
   },
   "devDependencies": {
     "@cycle/core": "^7.0.0",
-    "@cycle/dom": "^17.1.0",
+    "@cycle/dom": "^17.4.0",
     "@cycle/history": "^6.1.0",
     "@cycle/http": "^13.2.0",
     "@cycle/isolate": "^2.1.0",
