@@ -10,7 +10,7 @@ export default {
   post: (type: Type) => ({
     url: `${baseUrl}/types`,
     method: 'POST',
-    category: 'postTypes',
+    category: 'postType',
     send: type
   })
 }

@@ -5,11 +5,6 @@ export interface ApiResponse<T> {
   data: T
 }
 
-export interface ApiRequest<T> {
-  pending: Triphasic
-  data: T
-}
-
 export interface Type {
   name: string
   slug: string

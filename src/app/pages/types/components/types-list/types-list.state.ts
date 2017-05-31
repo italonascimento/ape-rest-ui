@@ -1,4 +1,5 @@
-import {Type, ApiRequest} from 'app/api/models'
+import {ApiRequest} from 'app/types'
+import {Type} from 'app/api/models'
 
 export interface State {
   types: ApiRequest<Type[]>

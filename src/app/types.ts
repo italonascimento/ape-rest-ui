@@ -13,6 +13,11 @@ export enum Triphasic {
   Done,
 }
 
+export interface ApiRequest<T> {
+  pending: Triphasic
+  data: T
+}
+
 export interface Sources {
   DOM: DOMSource
   onion: StateSource<any>

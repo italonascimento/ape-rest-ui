@@ -7,7 +7,30 @@ import {Reducer} from 'app/types'
 export default {
   init(): Reducer<State> {
     return (prevState) => prevState ? prevState : {
-      typeName: ''
+      typeName: '',
+      typeSlug: '',
+      type: {
+        pending: Triphasic.Initial,
+        data: null
+      }
     }
   },
+
+  postType(): Reducer<State> {
+    return (prevState) => _.assign({}, prevState, {
+      type: {
+        pending: Triphasic.Pending,
+        data: prevState.type.data
+      }
+    })
+  },
+
+  postTypeResponse(type: Type): Reducer<State> {
+    return (prevState) => _.assign({}, prevState, {
+      type: {
+        pending: Triphasic.Done,
+        data: type
+      }
+    })
+  }
 }

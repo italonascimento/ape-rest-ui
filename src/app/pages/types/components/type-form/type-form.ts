@@ -1,5 +1,6 @@
 import {Sources, Reducer} from 'app/types'
 import {DOMSource, VNode, div, form, label, p, button} from '@cycle/dom'
+import {RequestInput} from '@cycle/http'
 import {State} from './type-form.state'
 import xs, {Stream} from 'xstream'
 import TypeFormReducer from './type-form.reducer'
@@ -10,9 +11,12 @@ import {row, field, primaryButton, flatButton} from 'app/style/form'
 import style from './type-form.style'
 import {HistoryInput} from '@cycle/history'
 import {TypesService} from 'app/api/service'
+import responseHandler from 'app/api/utils/response-handler'
+import {Functions as F} from 'app/utils'
 
 interface Actions {
-  submit: Stream<any>
+  postType: Stream<any>
+  postTypeResponse: Stream<any>
   cancel: Stream<any>
 }
 
@@ -23,9 +27,9 @@ interface Model {
 }
 
 export default function(sources: Partial<Sources>) {
-  const {onion, DOM, HTTP} = sources
+  const {onion} = sources
 
-  const {request, reducer, router} = model(intent(DOM))
+  const {request, reducer, router} = model(intent(sources))
 
   const NameField = isolate(Singleline, 'typeName')({...sources, props: xs.of({placeholder: 'Name'})})
   const SlugField = isolate(Singleline, 'typeSlug')({...sources, props: xs.of({placeholder: 'Slug'})})
@@ -48,35 +52,49 @@ export default function(sources: Partial<Sources>) {
   }
 }
 
-function intent(DOM: DOMSource) {
+function intent(sources: Partial<Sources>) {
+  const {DOM, HTTP, onion} = sources
+
   return {
-    submit: DOM.select('.form')
+    postType: DOM
+      .select('.form')
       .events('submit')
       .map(ev => {
-        ev.preventDefault();
-        return ev;
-      }),
+        ev.preventDefault()
 
-    cancel: DOM.select('.cancel')
+        return onion.state$.map(state => ({
+          name: state.typeName,
+          slug: state.typeSlug,
+        }))
+      })
+      .flatten(),
+
+    postTypeResponse: HTTP
+      .select('postType')
+      .map(responseHandler)
+      .flatten()
+      .filter(F.hasPath('data'))
+      .map(res => res.data),
+
+    cancel: DOM
+      .select('.cancel')
       .events('click')
       .map(ev => {
-        ev.preventDefault();
-        return ev;
+        ev.preventDefault()
+        return ev
       }),
   }
 }
 
 function model(actions: Actions): Model {
-  const submitRequest$ = actions.submit
-    .mapTo(TypesService.post({name: 'test', slug: 'test'}))
-
-  const initialReducer$: Stream<Reducer<State>> = xs.of(TypeFormReducer.init())
-
   return {
-    request: submitRequest$,
+    request: xs.merge(
+      actions.postType.map(TypesService.post),
+    ),
 
     reducer: xs.merge(
-      initialReducer$
+      xs.of(TypeFormReducer.init()),
+      actions.postTypeResponse.map(TypeFormReducer.postTypeResponse)
     ),
 
     router: actions.cancel.mapTo('/types')
