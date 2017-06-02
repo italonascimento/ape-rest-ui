@@ -5,6 +5,7 @@ import {State} from './type-form.state'
 import xs, {Stream} from 'xstream'
 import TypeFormReducer from './type-form.reducer'
 import Singleline from 'app/components/inputs/singleline'
+import KeyValuePair from 'app/components/inputs/key-value-pair'
 import isolate from '@cycle/isolate'
 import {apply} from 'app/utils'
 import {row, field, primaryButton, flatButton} from 'app/style/form'
@@ -33,12 +34,15 @@ export default function(sources: Partial<Sources>) {
 
   const NameField = isolate(Singleline, 'typeName')({...sources, props: xs.of({placeholder: 'Name'})})
   const SlugField = isolate(Singleline, 'typeSlug')({...sources, props: xs.of({placeholder: 'Slug'})})
+  const Field = isolate(KeyValuePair, 'field')(sources)
+  console.log(Field)
 
   const vdom$ = xs.combine(
     onion.state$,
     NameField.DOM,
-    SlugField.DOM)
-    .map(apply(view))
+    SlugField.DOM,
+    Field.DOM,
+  ).map(apply(view))
 
   return {
     DOM: vdom$,
@@ -46,6 +50,7 @@ export default function(sources: Partial<Sources>) {
       reducer,
       NameField.onion,
       SlugField.onion,
+      Field.onion,
     ),
     HTTP: request,
     history: router
@@ -105,6 +110,7 @@ function view(
   state: State,
   NameField: VNode,
   SlugField: VNode,
+  Field: VNode,
 ): VNode {
   return (
     div([
@@ -122,12 +128,18 @@ function view(
         ]),
 
         div({ attrs: { class: row }}, [
-          button(`.${primaryButton}`, { attrs: { type: 'submit'}}, [
-            'Save'
-          ]),
+          label({ attrs: { class: field }}, [
+            Field,
+          ])
+        ]),
 
+        div({ attrs: { class: `${row} right` }}, [
           button(`.cancel.${flatButton}`, [
             'Cancel'
+          ]),
+
+          button(`.${primaryButton}`, { attrs: { type: 'submit'}}, [
+            'Save'
           ]),
         ]),
       ]),

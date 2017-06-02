@@ -10,8 +10,16 @@ export const row = css({
   display: 'block',
 
   ':not(:first-of-type)': {
-    marginTop: '8px'
-  }
+    marginTop: '16px'
+  },
+
+  '&.right': {
+    textAlign: 'right'
+  },
+
+  '&.center': {
+    textAlign: 'center'
+  },
 })
 
 export const field = css({
@@ -19,7 +27,6 @@ export const field = css({
   height: '100%',
 
   '& input, & textarea': {
-    border: 'none',
     display: 'block',
     height: '100%',
     width: '100%',
@@ -27,14 +34,26 @@ export const field = css({
     fontSize: '12px',
     color: colors.dark
   },
+})
+
+export const singleline = css({
+  borderTop: 'none',
+  borderLeft: 'none',
+  borderRight: 'none',
+  borderBottom: `1px solid ${colors.border}`,
+  transition: 'border-color 0.12s ease-in',
+
+  '&:focus': {
+    borderBottom: `1px solid ${colors.primary}`,
+  }
+})
+
+export const keyValuePair = css({
+  display: 'flex',
+  flexDirection: 'row',
 
   '& input': {
-    borderBottom: `1px solid ${colors.border}`,
-    transition: 'border-color 0.12s ease-in',
-
-    '&:focus': {
-      borderBottom: `1px solid ${colors.primary}`,
-    }
+    flex: '1'
   }
 })
 

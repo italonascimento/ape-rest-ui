@@ -79,12 +79,12 @@ function view(state: State): VNode {
     ul('.types-list', {
       class: {'types-list--pending': state.types.pending}
     },
-      _.map(state.types.data, Type)
+      _.map(state.types.data, Item)
     )
   )
 }
 
-function Type(data: Type): VNode {
+function Item(data: Type): VNode {
   return (
     li('.type', data.name)
   )
