@@ -6,34 +6,36 @@ css.global('input, textarea, button', {
   outline: 0
 })
 
-export const row = css({
-  display: 'block',
+export const form = css({
+  '& .row': {
+    display: 'block',
 
-  ':not(:first-of-type)': {
-    marginTop: '16px'
+    ':not(:first-of-type)': {
+      marginTop: '16px'
+    },
+
+    '&.right': {
+      textAlign: 'right'
+    },
+
+    '&.center': {
+      textAlign: 'center'
+    },
   },
 
-  '&.right': {
-    textAlign: 'right'
-  },
-
-  '&.center': {
-    textAlign: 'center'
-  },
-})
-
-export const field = css({
-  display: 'block',
-  height: '100%',
-
-  '& input, & textarea': {
+  '& .field': {
     display: 'block',
     height: '100%',
-    width: '100%',
-    padding: '8px',
-    fontSize: '12px',
-    color: colors.dark
-  },
+
+    '& input, & textarea': {
+      display: 'block',
+      height: '100%',
+      width: '100%',
+      padding: '8px',
+      fontSize: '12px',
+      color: colors.dark
+    },
+  }
 })
 
 export const singleline = css({

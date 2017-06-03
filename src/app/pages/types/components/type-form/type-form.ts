@@ -8,7 +8,8 @@ import Singleline from 'app/components/inputs/singleline'
 import KeyValuePair from 'app/components/inputs/key-value-pair'
 import isolate from '@cycle/isolate'
 import {apply} from 'app/utils'
-import {row, field, primaryButton, flatButton} from 'app/style/form'
+import {form as formClass, primaryButton, flatButton} from 'app/style/form'
+import css from 'app/style'
 import style from './type-form.style'
 import {HistoryInput} from '@cycle/history'
 import {TypesService} from 'app/api/service'
@@ -127,24 +128,24 @@ function view(
 ): VNode {
   return (
     div([
-      form(`.form.${style.form}`, [
-        div(`.${row}`, [
-          label({ attrs: { class: field }}, [
+      form(`.form.${css(formClass, style.form)}`, [
+        div(`.row`, [
+          label('.field', [
             NameField,
           ]),
         ]),
 
-        div(`.${row}`, [
-          label({ attrs: { class: field }}, [
+        div(`.row`, [
+          label('.field', [
             SlugField,
           ])
         ]),
 
-        div(`.${row}`,
+        div(`.row`,
           _.map(state.attributes, attr =>
 
-            div(`.${row}`, { style: style.expandRowTransition }, [
-              label({ attrs: { class: field }}, [
+            div(`.row`, { style: style.expandRowTransition }, [
+              label('.field', [
                 AttributeField,
               ])
             ]),
@@ -152,11 +153,11 @@ function view(
           )
         ),
 
-        div(`.${row}`, [
+        div(`.row`, [
           button(`.add-attr.${style.addAttribute}`, 'Add attribute')
         ]),
 
-        div(`.${row}.right`, [
+        div(`.row.right`, [
           button(`.cancel.${flatButton}`, [
             'Cancel'
           ]),
