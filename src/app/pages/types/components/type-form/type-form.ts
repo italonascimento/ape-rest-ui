@@ -14,11 +14,13 @@ import {HistoryInput} from '@cycle/history'
 import {TypesService} from 'app/api/service'
 import responseHandler from 'app/api/utils/response-handler'
 import {Functions as F} from 'app/utils'
+import * as _ from 'lodash'
 
 interface Actions {
   postType: Stream<any>
   postTypeResponse: Stream<any>
   cancel: Stream<any>
+  addAttribute: Stream<any>
 }
 
 interface Model {
@@ -30,18 +32,19 @@ interface Model {
 export default function(sources: Partial<Sources>) {
   const {onion} = sources
 
+  onion.state$.addListener({next: i => console.log(i)})
+
   const {request, reducer, router} = model(intent(sources))
 
-  const NameField = isolate(Singleline, 'typeName')({...sources, props: xs.of({placeholder: 'Name'})})
-  const SlugField = isolate(Singleline, 'typeSlug')({...sources, props: xs.of({placeholder: 'Slug'})})
-  const Field = isolate(KeyValuePair, 'field')(sources)
-  console.log(Field)
+  const NameField = isolate(Singleline, 'name')({...sources, props: xs.of({placeholder: 'Name'})})
+  const SlugField = isolate(Singleline, 'slug')({...sources, props: xs.of({placeholder: 'Slug'})})
+  const AttributeField = isolate(KeyValuePair, 'field')(sources)
 
   const vdom$ = xs.combine(
     onion.state$,
     NameField.DOM,
     SlugField.DOM,
-    Field.DOM,
+    AttributeField.DOM,
   ).map(apply(view))
 
   return {
@@ -50,7 +53,7 @@ export default function(sources: Partial<Sources>) {
       reducer,
       NameField.onion,
       SlugField.onion,
-      Field.onion,
+      AttributeField.onion,
     ),
     HTTP: request,
     history: router
@@ -68,8 +71,8 @@ function intent(sources: Partial<Sources>) {
         ev.preventDefault()
 
         return onion.state$.map(state => ({
-          name: state.typeName,
-          slug: state.typeSlug,
+          name: state.name,
+          slug: state.slug,
         }))
       })
       .flatten(),
@@ -88,6 +91,15 @@ function intent(sources: Partial<Sources>) {
         ev.preventDefault()
         return ev
       }),
+
+    addAttribute: DOM
+      .select('.add-attr')
+      .events('click')
+      .map(ev => {
+        ev.preventDefault();
+        (<any>ev.target).blur()
+        return ev
+      })
   }
 }
 
@@ -99,7 +111,8 @@ function model(actions: Actions): Model {
 
     reducer: xs.merge(
       xs.of(TypeFormReducer.init()),
-      actions.postTypeResponse.map(TypeFormReducer.postTypeResponse)
+      actions.postTypeResponse.map(TypeFormReducer.postTypeResponse),
+      actions.addAttribute.mapTo(TypeFormReducer.addAttribute())
     ),
 
     router: actions.cancel.mapTo('/types')
@@ -110,30 +123,40 @@ function view(
   state: State,
   NameField: VNode,
   SlugField: VNode,
-  Field: VNode,
+  AttributeField: VNode,
 ): VNode {
   return (
     div([
       form(`.form.${style.form}`, [
-        div({ attrs: { class: row }}, [
+        div(`.${row}`, [
           label({ attrs: { class: field }}, [
             NameField,
           ]),
         ]),
 
-        div({ attrs: { class: row }}, [
+        div(`.${row}`, [
           label({ attrs: { class: field }}, [
             SlugField,
           ])
         ]),
 
-        div({ attrs: { class: row }}, [
-          label({ attrs: { class: field }}, [
-            Field,
-          ])
+        div(`.${row}`,
+          _.map(state.attributes, attr =>
+
+            div(`.${row}`, { style: style.expandRowTransition }, [
+              label({ attrs: { class: field }}, [
+                AttributeField,
+              ])
+            ]),
+
+          )
+        ),
+
+        div(`.${row}`, [
+          button(`.add-attr.${style.addAttribute}`, 'Add attribute')
         ]),
 
-        div({ attrs: { class: `${row} right` }}, [
+        div(`.${row}.right`, [
           button(`.cancel.${flatButton}`, [
             'Cancel'
           ]),

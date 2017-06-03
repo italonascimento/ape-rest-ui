@@ -1,14 +1,15 @@
 import * as _ from 'lodash'
 import {Triphasic} from 'app/types'
-import {Type, ApiResponse} from 'app/api/models'
+import {Type, ApiResponse, TypeAttribute} from 'app/api/models'
 import {State} from './type-form.state'
 import {Reducer} from 'app/types'
 
 export default {
   init(): Reducer<State> {
     return (prevState) => prevState ? prevState : {
-      typeName: '',
-      typeSlug: '',
+      name: '',
+      slug: '',
+      attributes: [],
       type: {
         pending: Triphasic.Initial,
         data: null
@@ -31,6 +32,12 @@ export default {
         pending: Triphasic.Done,
         data: type
       }
+    })
+  },
+
+  addAttribute(): Reducer<State> {
+    return (prevState) => _.assign({}, prevState, {
+      attributes: _.concat(prevState.attributes || [], <TypeAttribute>{})
     })
   }
 }

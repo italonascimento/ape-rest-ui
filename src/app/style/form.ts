@@ -2,7 +2,7 @@ import css from './global'
 import {colors} from './theme'
 import {merge} from 'glamor'
 
-css.global('input, textarea', {
+css.global('input, textarea, button', {
   outline: 0
 })
 
@@ -40,7 +40,7 @@ export const singleline = css({
   borderTop: 'none',
   borderLeft: 'none',
   borderRight: 'none',
-  borderBottom: `1px solid ${colors.border}`,
+  borderBottom: `1px solid ${colors.light}`,
   transition: 'border-color 0.12s ease-in',
 
   '&:focus': {

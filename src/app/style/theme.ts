@@ -1,9 +1,11 @@
 export const colors = {
-  border: '#e3e3e3',
-
   primary: '#4e86ba',
-  light: '#bdbdbd',
-  dark: '#1e1e1e'
+
+  lighter: '#f4f4f4',
+  light: '#e3e3e3',
+  lightGray: '#bdbdbd',
+  gray: '#929292',
+  dark: '#1e1e1e',
 }
 
 export const fonts = {
