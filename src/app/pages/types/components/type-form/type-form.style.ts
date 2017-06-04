@@ -18,10 +18,17 @@ export default {
         fontSize: '8px',
         cursor: 'pointer',
         opacity: 0,
-        transform: 'scale(0.9)',
-        transition: 'opacity 0.15s ease-in, transform 0.15s ease-in'
+        visibility: 'hidden',
+        transform: 'scale(0.8)',
+        transition: 'opacity 0.15s ease-in, transform 0.15s ease-in, visibility 0.15s',
+
+        '&:hover, &:focus, &:active': {
+          background: colors.lighter,
+        }
       },
       '&:hover .remove-row': {
+        transition: 'opacity 0.15s ease-in, transform 0.15s ease-in, visibility 0s',
+        visibility: 'visible',
         opacity: 1,
         transform: 'scale(1)',
       }
