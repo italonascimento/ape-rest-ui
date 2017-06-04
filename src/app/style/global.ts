@@ -1,5 +1,6 @@
 import {css} from 'glamor'
 import {fonts} from './theme'
+import 'glamor/reset'
 
 css.global('*', {
   boxSizing: 'border-box',

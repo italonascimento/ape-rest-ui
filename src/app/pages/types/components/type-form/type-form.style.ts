@@ -12,6 +12,7 @@ export default {
       '& .remove-row': {
         width: '24px',
         height: '24px',
+        padding: '8px',
         position: 'absolute',
         top: 0,
         right: 0,
@@ -35,8 +36,19 @@ export default {
     }
   }),
 
+  attributes: css({
+      marginTop: '32px',
+  }),
+
+  title: css({
+    color: colors.darkGray,
+    fontSize: '11px',
+    textTransform: 'uppercase',
+    margin: 0,
+  }),
+
   addAttribute: css({
-    padding: '12px',
+    padding: '12px 12px 9px',
     textAlign: 'center',
     display: 'block',
     width: '100%',

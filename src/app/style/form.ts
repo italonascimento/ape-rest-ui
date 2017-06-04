@@ -11,11 +11,17 @@ css.global('button', {
   background: 'transparent',
 })
 
+css.global('fieldset', {
+  border: 'none',
+  margin: 0,
+  padding: 0,
+})
+
 export const form = css({
   '& .row': {
     display: 'block',
     paddingTop: '16px',
-    
+
     '&.right': {
       textAlign: 'right'
     },

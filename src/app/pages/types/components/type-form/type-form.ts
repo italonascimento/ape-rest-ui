@@ -1,5 +1,9 @@
 import {Sources, Reducer} from 'app/types'
-import {DOMSource, VNode, div, form, label, p, button, i} from '@cycle/dom'
+import {
+  DOMSource, VNode, div,
+  form, label, p, h3,
+  button, i, fieldset,
+} from '@cycle/dom'
 import {RequestInput} from '@cycle/http'
 import {State} from './type-form.state'
 import xs, {Stream} from 'xstream'
@@ -36,12 +40,12 @@ export default function(sources: Partial<Sources>) {
 
   const {request, reducer, router} = model(intent(sources))
 
-  const NameField = isolate(Singleline, 'name')({...sources, props: xs.of({placeholder: 'Name'})})
   const SlugField = isolate(Singleline, 'slug')({...sources, props: xs.of({placeholder: 'Slug'})})
+  const NameField = isolate(Singleline, 'name')({...sources, props: xs.of({placeholder: 'Name'})})
   const AttributeField = isolate(KeyValuePair, 'field')({
     ...sources,
     props: xs.of({
-      placeholders: ['Attribute slug', 'Attribute title']
+      placeholders: ['Slug', 'Title']
     })
   })
 
@@ -133,37 +137,44 @@ function view(
   return (
     div([
       form(`.form.${css(formClass, style.form)}`, [
-        div(`.row`, [
-          label('.field', [
-            NameField,
+        fieldset([
+          h3(`.${style.title}`, 'Type info'),
+
+          div('.row', [
+            label('.field', [
+              SlugField,
+            ])
+          ]),
+
+          div('.row', [
+            label('.field', [
+              NameField,
+            ]),
           ]),
         ]),
 
-        div(`.row`, [
-          label('.field', [
-            SlugField,
-          ])
+        fieldset(`.${style.attributes}`, [
+          h3(`.${style.title}`, 'Type attributes'),
+          div(
+            _.map(state.attributes, attr =>
+              div('.row.removable', { style: style.expandRowTransition }, [
+                label('.field', [
+                  AttributeField,
+                ]),
+
+                button('.remove-row', [
+                  icon('cross')
+                ])
+              ]),
+            ),
+          )
         ]),
 
-        div(
-          _.map(state.attributes, attr =>
-            div(`.row.removable`, { style: style.expandRowTransition }, [
-              label('.field', [
-                AttributeField,
-              ]),
-
-              button('.remove-row', [
-                icon('cross')
-              ])
-            ]),
-          ),
-        ),
-
-        div(`.row`, [
+        div('.row', [
           button(`.add-attr.${style.addAttribute}`, 'Add attribute')
         ]),
 
-        div(`.row.right`, [
+        div('.row.right', [
           button(`.cancel.${flatButton}`, [
             'Cancel'
           ]),
