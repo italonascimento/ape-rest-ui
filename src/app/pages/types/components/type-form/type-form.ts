@@ -38,7 +38,12 @@ export default function(sources: Partial<Sources>) {
 
   const NameField = isolate(Singleline, 'name')({...sources, props: xs.of({placeholder: 'Name'})})
   const SlugField = isolate(Singleline, 'slug')({...sources, props: xs.of({placeholder: 'Slug'})})
-  const AttributeField = isolate(KeyValuePair, 'field')(sources)
+  const AttributeField = isolate(KeyValuePair, 'field')({
+    ...sources,
+    props: xs.of({
+      placeholders: ['Attribute slug', 'Attribute title']
+    })
+  })
 
   const vdom$ = xs.combine(
     onion.state$,

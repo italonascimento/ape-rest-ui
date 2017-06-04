@@ -33,14 +33,24 @@ interface Model {
 export default function(sources: Partial<Sources>) {
   const {DOM, onion, props} = sources
 
+  const placeholders: Stream<string[]> = props.map(p =>
+    p.placeholders && p.placeholders.length ?
+    p.placeholders :
+    ['Key', 'Value']
+  )
+
   const key = isolate(Singleline, 'key')({
     ...sources,
-    props: xs.of({placeholder: 'Key'})
+    props: placeholders.map(placeholders => ({
+      placeholder: placeholders[0]
+    }))
   })
 
   const value = isolate(Singleline, 'value')({
     ...sources,
-    props: xs.of({placeholder: 'Value'})
+    props: placeholders.map(placeholders => ({
+      placeholder: _.get(placeholders, '1', placeholders[0])
+    }))
   })
 
   const vdom$ = xs.combine(
