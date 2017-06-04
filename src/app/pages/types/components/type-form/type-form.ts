@@ -1,5 +1,5 @@
 import {Sources, Reducer} from 'app/types'
-import {DOMSource, VNode, div, form, label, p, button} from '@cycle/dom'
+import {DOMSource, VNode, div, form, label, p, button, i} from '@cycle/dom'
 import {RequestInput} from '@cycle/http'
 import {State} from './type-form.state'
 import xs, {Stream} from 'xstream'
@@ -16,6 +16,7 @@ import {TypesService} from 'app/api/service'
 import responseHandler from 'app/api/utils/response-handler'
 import {Functions as F} from 'app/utils'
 import * as _ from 'lodash'
+import {icon} from 'app/components'
 
 interface Actions {
   postType: Stream<any>
@@ -32,8 +33,6 @@ interface Model {
 
 export default function(sources: Partial<Sources>) {
   const {onion} = sources
-
-  onion.state$.addListener({next: i => console.log(i)})
 
   const {request, reducer, router} = model(intent(sources))
 
@@ -141,16 +140,18 @@ function view(
           ])
         ]),
 
-        div(`.row`,
+        div(
           _.map(state.attributes, attr =>
-
-            div(`.row`, { style: style.expandRowTransition }, [
+            div(`.row.removable`, { style: style.expandRowTransition }, [
               label('.field', [
                 AttributeField,
+              ]),
+
+              button('.remove-row', [
+                icon('cross')
               ])
             ]),
-
-          )
+          ),
         ),
 
         div(`.row`, [

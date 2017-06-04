@@ -6,14 +6,16 @@ css.global('input, textarea, button', {
   outline: 0
 })
 
+css.global('button', {
+  border: 'none',
+  background: 'transparent',
+})
+
 export const form = css({
   '& .row': {
     display: 'block',
-
-    ':not(:first-of-type)': {
-      marginTop: '16px'
-    },
-
+    paddingTop: '16px',
+    
     '&.right': {
       textAlign: 'right'
     },

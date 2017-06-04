@@ -1,5 +1,6 @@
 const path = require('path')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
+const CopyWebpackPlugin = require('copy-webpack-plugin')
 
 module.exports = {
   entry: "./src/index.ts",
@@ -17,6 +18,12 @@ module.exports = {
           path.resolve(__dirname, "src")
         ],
         loader: "awesome-typescript-loader",
+      },
+      {
+        test: /\.(png|svg|jpg|gif)$/,
+        use: [
+          'file-loader'
+        ]
       }
     ]
   },
@@ -46,9 +53,15 @@ module.exports = {
     port: 3000
   },
 
-  plugins: [new HtmlWebpackPlugin({
-    title: 'balaclava',
-    hash: true,
-    template: './src/index.ejs'
-  })]
+  plugins: [
+    new HtmlWebpackPlugin({
+      title: 'balaclava',
+      hash: true,
+      template: './src/index.ejs'
+    }),
+
+    new CopyWebpackPlugin([
+      { from: 'src/app/assets' }
+    ]),
+  ]
 }
