@@ -1,7 +1,8 @@
 import {VNode, p} from '@cycle/dom'
 import isolate from '@cycle/isolate'
 import TypesPage from 'app/pages/types/types.page'
-import {TypesList, TypeForm} from 'app/pages/types/components'
+import TypesList from 'app/pages/types/types-list/types-list'
+import TypeForm from 'app/pages/types/type-form/type-form'
 import {ViewComponent} from 'app/types'
 
 export interface Route {

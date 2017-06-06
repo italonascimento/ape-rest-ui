@@ -6,8 +6,8 @@ import TypesReducer from './types.reducer'
 import {State} from './types.state'
 import {RequestInput} from '@cycle/http'
 import isolate from '@cycle/isolate'
-import TypesListComponent from './components/types-list/types-list'
-import TypeFormComponent from './components/type-form/type-form'
+import TypesListComponent from './types-list/types-list'
+import TypeFormComponent from './type-form/type-form'
 import {GenericInput} from '@cycle/history'
 import {routes, Route} from 'app/router'
 import * as _ from 'lodash'
@@ -19,7 +19,6 @@ interface Model {
 
 interface Actions {
   changeMode$: Stream<any>
-  newType$: Stream<any>
 }
 
 
@@ -67,10 +66,6 @@ function intent(sources: Partial<Sources>): Actions {
   return {
     changeMode$: history
       .map((h: GenericInput) => _.split(h.pathname, '/')[2] || ''),
-
-    newType$: DOM
-      .select('.new-type')
-      .events('click')
   }
 }
 
@@ -78,13 +73,9 @@ function model(actions: Actions): Model {
   const changeModeReducer$: Stream<Reducer<State>> = actions.changeMode$
     .map(TypesReducer.changeMode)
 
-  const resetNewTypeReducer$: Stream<Reducer<State>> = actions.newType$
-    .mapTo(TypesReducer.resetNewType())
-
   return {
     reducer$: xs.merge(
       changeModeReducer$,
-      resetNewTypeReducer$,
     )
   }
 }

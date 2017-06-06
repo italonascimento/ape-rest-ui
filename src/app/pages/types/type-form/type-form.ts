@@ -8,8 +8,7 @@ import {RequestInput} from '@cycle/http'
 import {State} from './type-form.state'
 import xs, {Stream} from 'xstream'
 import TypeFormReducer from './type-form.reducer'
-import Singleline from 'app/components/inputs/singleline'
-import KeyValuePair from 'app/components/inputs/key-value-pair'
+import {Singleline} from 'app/components/inputs'
 import isolate from '@cycle/isolate'
 import {apply} from 'app/utils'
 import {form as formClass, primaryButton, flatButton} from 'app/style/form'
@@ -21,6 +20,9 @@ import responseHandler from 'app/api/utils/response-handler'
 import {Functions as F} from 'app/utils'
 import * as _ from 'lodash'
 import {icon} from 'app/components'
+import {TypeAttribute} from 'app/api/models'
+import {pick, mix} from 'cycle-onionify'
+import AttributeField from './attribute-field/attribute-field'
 
 interface Actions {
   postType: Stream<any>
@@ -42,18 +44,26 @@ export default function(sources: Partial<Sources>) {
 
   const SlugField = isolate(Singleline, 'slug')({...sources, props: xs.of({placeholder: 'Slug'})})
   const NameField = isolate(Singleline, 'name')({...sources, props: xs.of({placeholder: 'Name'})})
-  const AttributeField = isolate(KeyValuePair, 'field')({
-    ...sources,
-    props: xs.of({
-      placeholders: ['Slug', 'Title']
-    })
-  })
+
+  const attributesSinks$ = onion.state$.map(state =>
+    state.attributes
+      .map((attribute: TypeAttribute, index: number) =>
+        isolate(AttributeField, index)(sources)
+      ))
+  const attributesReducer$ = attributesSinks$
+    .compose(pick('onion'))
+    .compose(mix(xs.merge))
+
+  const attributesDOM$ = attributesSinks$
+    .compose(pick('DOM'))
+    .compose(mix(xs.combine))
+    .map(list => _.map(list, AttributeRow))
 
   const vdom$ = xs.combine(
     onion.state$,
     NameField.DOM,
     SlugField.DOM,
-    AttributeField.DOM,
+    attributesDOM$,
   ).map(apply(view))
 
   return {
@@ -62,7 +72,7 @@ export default function(sources: Partial<Sources>) {
       reducer,
       NameField.onion,
       SlugField.onion,
-      AttributeField.onion,
+      attributesReducer$,
     ),
     HTTP: request,
     history: router
@@ -121,7 +131,8 @@ function model(actions: Actions): Model {
     reducer: xs.merge(
       xs.of(TypeFormReducer.init()),
       actions.postTypeResponse.map(TypeFormReducer.postTypeResponse),
-      actions.addAttribute.mapTo(TypeFormReducer.addAttribute())
+      actions.addAttribute.mapTo(TypeFormReducer.addAttribute()),
+      actions.cancel.map(evt => TypeFormReducer.init()),
     ),
 
     router: actions.cancel.mapTo('/types')
@@ -132,7 +143,7 @@ function view(
   state: State,
   NameField: VNode,
   SlugField: VNode,
-  AttributeField: VNode,
+  AttributesList: VNode[],
 ): VNode {
   return (
     div([
@@ -156,17 +167,7 @@ function view(
         fieldset(`.${style.attributes}`, [
           h3(`.${style.title}`, 'Type attributes'),
           div(
-            _.map(state.attributes, attr =>
-              div('.row.removable', { style: style.expandRowTransition }, [
-                label('.field', [
-                  AttributeField,
-                ]),
-
-                button('.remove-row', [
-                  icon('cross')
-                ])
-              ]),
-            ),
+            AttributesList,
           )
         ]),
 
@@ -184,6 +185,14 @@ function view(
           ]),
         ]),
       ]),
+    ])
+  )
+}
+
+function AttributeRow(AttributeField: VNode): VNode {
+  return (
+    div('.row.removable', { style: style.expandRowTransition }, [
+      AttributeField,
     ])
   )
 }

@@ -6,7 +6,7 @@ import {Reducer} from 'app/types'
 
 export default {
   init(): Reducer<State> {
-    return (prevState) => prevState ? prevState : {
+    return (prevState) => <State>{
       name: '',
       slug: '',
       attributes: [],
