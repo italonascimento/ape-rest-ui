@@ -11,9 +11,9 @@ import TypeFormReducer from './type-form.reducer'
 import {Singleline} from 'app/components/inputs'
 import isolate from '@cycle/isolate'
 import {apply} from 'app/utils'
-import {form as formClass, primaryButton, flatButton} from 'app/style/form'
+import formClasses from 'app/style/form'
 import css from 'app/style'
-import style from './type-form.style'
+import classes from './type-form.style'
 import {HistoryInput} from '@cycle/history'
 import {TypesService} from 'app/api/service'
 import responseHandler from 'app/api/utils/response-handler'
@@ -47,9 +47,9 @@ export default function(sources: Partial<Sources>) {
 
   const attributesSinks$ = onion.state$.map(state =>
     state.attributes
-      .map((attribute: TypeAttribute, index: number) =>
-        isolate(AttributeField, index)(sources)
-      ))
+      .map((attribute: TypeAttribute, index: number) =>{
+        return isolate(AttributeField, index)(sources)
+      }))
   const attributesReducer$ = attributesSinks$
     .compose(pick('onion'))
     .compose(mix(xs.merge))
@@ -117,6 +117,7 @@ function intent(sources: Partial<Sources>) {
       .map(ev => {
         ev.preventDefault();
         (<any>ev.target).blur()
+        console.log('click')
         return ev
       })
   }
@@ -131,7 +132,7 @@ function model(actions: Actions): Model {
     reducer: xs.merge(
       xs.of(TypeFormReducer.init()),
       actions.postTypeResponse.map(TypeFormReducer.postTypeResponse),
-      actions.addAttribute.mapTo(TypeFormReducer.addAttribute()),
+      actions.addAttribute.map(TypeFormReducer.addAttribute),
       actions.cancel.map(evt => TypeFormReducer.init()),
     ),
 
@@ -147,40 +148,40 @@ function view(
 ): VNode {
   return (
     div([
-      form(`.form.${css(formClass, style.form)}`, [
+      form(`.form.${classes.form}`, [
         fieldset([
-          h3(`.${style.title}`, 'Type info'),
+          h3(`.${classes.title}`, 'Type info'),
 
-          div('.row', [
-            label('.field', [
+          div(`.${formClasses.row}`, [
+            label(`.${formClasses.field}`, [
               SlugField,
             ])
           ]),
 
-          div('.row', [
-            label('.field', [
+          div(`.${formClasses.row}`, [
+            label(`.${formClasses.field}`, [
               NameField,
             ]),
           ]),
         ]),
 
-        fieldset(`.${style.attributes}`, [
-          h3(`.${style.title}`, 'Type attributes'),
+        fieldset(`.${classes.attributes}`, [
+          h3(`.${classes.title}`, 'Type attributes'),
           div(
             AttributesList,
           )
         ]),
 
-        div('.row', [
-          button(`.add-attr.${style.addAttribute}`, 'Add attribute')
+        div(`.${formClasses.row}`, [
+          button(`.add-attr.${classes.addAttribute}`, 'Add attribute')
         ]),
 
-        div('.row.right', [
-          button(`.cancel.${flatButton}`, [
+        div(`.${formClasses.row}.right`, [
+          button(`.cancel.${formClasses.flatButton}`, [
             'Cancel'
           ]),
 
-          button(`.${primaryButton}`, { attrs: { type: 'submit'}}, [
+          button(`.${formClasses.primaryButton}`, { attrs: { type: 'submit'}}, [
             'Save'
           ]),
         ]),
@@ -191,8 +192,12 @@ function view(
 
 function AttributeRow(AttributeField: VNode): VNode {
   return (
-    div('.row.removable', { style: style.expandRowTransition }, [
+    div('.row.removable', { style: classes.expandRowTransition }, [
       AttributeField,
+
+      button('.remove-row', [
+        icon('cross')
+      ]),
     ])
   )
 }

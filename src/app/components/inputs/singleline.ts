@@ -2,7 +2,7 @@ import {Sources as AppSources, Sinks, Reducer} from 'app/types'
 import {VNode, input, DOMSource} from '@cycle/dom'
 import xs, {Stream} from 'xstream'
 import {apply} from 'app/utils'
-import {singleline} from 'app/style/form'
+import formClasses from 'app/style/form'
 
 export type State = string
 
@@ -63,7 +63,7 @@ function model(actions: Actions): Model {
 
 function view(state: State, props: Props): VNode {
   return (
-    input(`.${singleline}`, {
+    input(`.${formClasses.singleline}`, {
       attrs: {
         value: state,
         placeholder: props.placeholder,

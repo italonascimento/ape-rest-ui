@@ -5,7 +5,7 @@ import {div, input, VNode, DOMSource} from '@cycle/dom'
 import * as _ from 'lodash'
 import Singleline from './singleline'
 import isolate from '@cycle/isolate'
-import {keyValuePair} from 'app/style/form'
+import formClasses from 'app/style/form'
 
 export interface State {
   key: string
@@ -69,7 +69,7 @@ export default function(sources: Partial<Sources>) {
 
 function view(key: VNode, value: VNode): VNode {
   return (
-    div(`.${keyValuePair}`, [
+    div(`.${formClasses.keyValuePair}`, [
       key,
       value,
     ])

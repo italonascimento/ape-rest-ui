@@ -6,6 +6,7 @@ import {apply} from 'app/utils'
 import {VNode, div, label, button} from '@cycle/dom'
 import {TypeAttribute} from 'app/api/models'
 import {icon} from 'app/components'
+import formClasses from 'app/style/form'
 
 export type State = TypeAttribute
 
@@ -28,25 +29,24 @@ export default function (sources: Partial<Sources>) {
   ).map(apply(view))
 
   return {
-    DOM: xs.never(),
-    onion: xs.never()
+    DOM: vdom$,
+    onion: xs.merge(
+      SlugField.onion,
+      NameField.onion,
+    ),
   }
 }
 
 function view(state: State, SlugField: VNode, NameField: VNode): VNode {
   return (
-    div([
-      label('.field', [
+    div(`.${formClasses.attributeField}`,[
+      label(`.${formClasses.field}`, [
         SlugField,
       ]),
 
-      label('.field', [
+      label(`.${formClasses.field}`, [
         NameField,
       ]),
-
-      button('.remove-row', [
-        icon('cross')
-      ])
     ])
   )
 }
